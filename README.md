@@ -25,7 +25,7 @@ Internet -> vm-honeypot -> Azure Monitor Agent + DCR -> Log Analytics workspace 
 
 The pipeline as seen in Azure Monitor (VM, data collection rule, workspace):
 
-![Architecture in Azure Monitor](screenshots/01-architecture-dcr-overview.png)
+![Architecture in Azure Monitor](01-architecture-dcr-overview.png)
 
 ## Tools and skills
 
