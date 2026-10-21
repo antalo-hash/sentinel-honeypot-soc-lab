@@ -1,6 +1,6 @@
 # Microsoft Sentinel Honeypot Lab: detecting RDP brute-force attacks in Azure
 
-A hands-on SOC lab built as a junior learning project. I exposed a Windows Server VM to the internet on purpose, sent its security logs to Microsoft Sentinel, and built detections, incidents and an attack map from real traffic.
+A hands-on SOC lab built as a junior learning project. I exposed a Windows Server VM to the internet on purpose, sent its security logs to Microsoft Sentinel, and built detections, incidents, and an attack map from real traffic.
 
 **Result:** about 4,461 failed RDP logons from 7 countries during roughly 2 days of log collection, and no successful external logon in the data collected.
 
@@ -35,25 +35,25 @@ Azure, Microsoft Sentinel, Microsoft Defender portal, Log Analytics, Azure Monit
 
 1. **Foundation:** Azure account, budget alert, MFA, resource group.
 2. **SIEM:** Log Analytics workspace with Microsoft Sentinel enabled and connected to the Defender portal.
-3. **Honeypot VM:** Windows Server 2022 with a non-default username and a long unique password, auto-shutdown configured, nothing personal stored on it.
-4. **Log ingestion:** installed the *Windows Security Events* solution from the Content hub and created a DCR (`dcr-honeypot-security`) collecting all security events.
-5. **Investigation:** KQL queries on failed logons (Event ID 4625), successful logons (4624) and attacker behaviour.
-6. **Detection:** a scheduled analytics rule that creates incidents for brute-force activity.
+3. **Honeypot VM:** Windows Server 2022 with a non-default username and a long, unique password, auto-shutdown configured, nothing personal stored on it.
+4. **Log ingestion:** Installed the *Windows Security Events* solution from the Content Hub and created a DCR (`dcr-honeypot-security`) collecting all security events.
+5. **Investigation:** KQL queries on failed logons (Event ID 4625), successful logons (4624), and attacker behaviour.
+6. **Detection:** A scheduled analytics rule that creates incidents for brute-force activity.
 7. **Visualisation:** a workbook with an attack map and a table of attempts per country.
 
 ### Log ingestion
 
 Data connector with the data collection rule `dcr-honeypot-security`:
 
-![Data connector and DCR](screenshots/02-data-connector-dcr.png)
+![Data connector and DCR](02-data-connector-dcr.png)
 
 First events arriving in the `SecurityEvent` table:
 
-![First SecurityEvent results](screenshots/03-securityevent-first-data.png)
+![First SecurityEvent results](03-securityevent-first-data.png)
 
 Breakdown of the events collected in 24 hours:
 
-![Event summary](screenshots/04-event-summary.png)
+![Event summary](04-event-summary.png)
 
 ## Key Windows events
 
@@ -88,7 +88,7 @@ SecurityEvent
 
 Rule configuration (review screen):
 
-![Analytics rule review](screenshots/06-analytics-rule-review.png)
+![Analytics rule review](06-analytics-rule-review.png)
 
 ## Investigation queries
 
@@ -116,11 +116,11 @@ SecurityEvent
 
 An external source triggered the rule (IP and analyst name redacted). The incident was assigned and moved to *Active*:
 
-![Active incident](screenshots/07-incident-active.png)
+![Active incident](07-incident-active.png)
 
 My own test incident, closed with a classification and a written comment:
 
-![Closed incident](screenshots/08-incident-closed.png)
+![Closed incident](08-incident-closed.png)
 
 ## Findings
 
@@ -135,16 +135,16 @@ My own test incident, closed with a classification and a written comment:
 | Romania | 2 |
 | **Total** | **4,461** |
 
-![RDP attack map workbook](screenshots/09-attack-map-workbook.png)
+![RDP attack map workbook](09-attack-map-workbook.png)
 
 Sources by country over a 24-hour sample (IP addresses redacted):
 
-![Attackers by country](screenshots/05-attackers-by-country.png)
+![Attackers by country](05-attackers-by-country.png)
 
 - **Two attack styles:** one source rotated through about 260 different usernames (a dictionary or password-spraying pattern), while the others repeated a single default name.
-- **Targeted usernames:** in a 24-hour sample, the most tried names were `azureuser` (1,118), `Administrator` (523) and `administrator` (381). These are default names, which is why choosing a non-obvious username matters.
+- **Targeted usernames:** in a 24-hour sample, the most tried names were `azureuser` (1,118), `Administrator` (523), and `administrator` (381). These are default names, which is why choosing a non-obvious username matters.
 - **No successful external logon** appeared in the collected data.
-- Country is the geolocation of the source IP. It shows where traffic appeared to come from, not who the attacker is (VPNs, proxies and infected machines are common).
+- Country is the geolocation of the source IP. It shows where traffic appeared to come from, not who the attacker is (VPNs, proxies, and infected machines are common).
 
 ## Challenges and what I learned
 
@@ -161,14 +161,14 @@ Sources by country over a 24-hour sample (IP addresses redacted):
 
 Evidence of the quota problem and its resolution:
 
-![QuotaExceeded error](screenshots/10-quota-exceeded-error.jpg)
+![QuotaExceeded error](10-quota-exceeded-error.jpg)
 
-![Quota approved](screenshots/11-quota-approved-email.jpg)
+![Quota approved](11-quota-approved-email.jpg)
 
 **Main lessons**
 
 - Verify that data actually arrives (`Heartbeat`, `SecurityEvent`), not just that the configuration looks right.
-- Tuning a detection rule matters as much as writing it. Threshold, window and grouping are one decision.
+- Tuning a detection rule matters as much as writing it. Threshold, window, and grouping are one decision.
 - Check the time range of your data before claiming "nothing happened".
 
 ## Cost
@@ -189,13 +189,13 @@ The lab was designed to stay close to free: auto-shutdown on the VM, a single re
 - Microsoft Sentinel and log ingestion were essentially free, consistent with the 31-day free trial.
 - Cost data can lag by up to a day, so the final figure may change by a few cents.
 
-![Cost by resource](screenshots/15-cost-by-resource.png)
+![Cost by resource](15-cost-by-resource.png)
 
-![Cost summary](screenshots/12-cost-summary.png)
+![Cost summary](12-cost-summary.png)
 
-![Credits remaining](screenshots/13-credits-remaining.png)
+![Credits remaining](13-credits-remaining.png)
 
-**Lessons:** a public IP and a disk keep billing even when the VM is stopped, so deleting only the VM is not enough. The VM itself was about half of the total. A USD 5 monthly budget with alerts at 50% (forecast) and 100% (actual) was created on day one. Spend passed the limit (about USD 5.94), but the notification never reached me because of a typo in the recipient address. Lesson: a budget alert only notifies, it does not stop spending, and it is worth testing that the notification actually arrives.
+**Lessons:** A public IP and a disk keep billing even when the VM is stopped, so deleting only the VM is not enough. The VM itself was about half of the total. A USD 5 monthly budget with alerts at 50% (forecast) and 100% (actual) was created on day one. Spend passed the limit (about USD 5.94), but the notification never reached me because of a typo in the recipient address. Lesson: a budget alert only notifies; it does not stop spending, and it is worth testing that the notification actually arrives.
 
 ## Security practices followed
 
@@ -213,10 +213,8 @@ Stopped the VM to end data collection, then deleted the `rg-soc-lab` resource gr
 
 After deletion, the only resource left in the subscription is `NetworkWatcher_eastus2`, a free resource Azure creates automatically:
 
-![All resources after clean-up](screenshots/14-cleanup-all-resources.png)
+![All resources after clean-up](14-cleanup-all-resources.png)
 
 ## Next steps
 
-- Add a Logic App playbook to notify on new incidents.
-- Add a rule for successful logons after multiple failures from the same IP.
 - Study for CompTIA Security+ and SC-200.
